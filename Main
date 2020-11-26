@@ -1,0 +1,29 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Main {
+    public static void main(String[] args) throws SQLException {
+
+        String userName="root";
+        String password="password?";
+        String url="jdbc:mysql://localhost:3306/clientdb?serverTimezone=Europe/Kiev";
+
+        MyUtil.start(userName,password,url);
+
+
+        Client cl1=new Client("Mike","Rubinov",8002030);
+        Client cl2=new Client("Tom","Shark",0635552550);
+        Product p1=new Product("Semechki","Good semechki for real man");
+        Product p2 =new Product("Apple","small green apple");
+
+        try(Connection con= DriverManager.getConnection(url, userName, password)) {
+            MyUtil.addClientToDB(cl1,con);
+            MyUtil.addClientToDB(cl2,con);
+            MyUtil.addProductToDB(p1,con);
+            MyUtil.addProductToDB(p2,con);
+
+            MyUtil.addOrderToDB(cl1,p2,con);
+        }
+    }
+}
