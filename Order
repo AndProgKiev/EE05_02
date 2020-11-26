@@ -1,0 +1,36 @@
+public class Order {
+    private int clientID;
+    private int productID;
+
+    public Order() {
+    }
+
+    public Order(int clientID, int productID) {
+        this.clientID = clientID;
+        this.productID = productID;
+    }
+
+    public int getClientID() {
+        return clientID;
+    }
+
+    public int getProductID() {
+        return productID;
+    }
+
+    public void setClientID(int clientID) {
+        this.clientID = clientID;
+    }
+
+    public void setProductID(int productID) {
+        this.productID = productID;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "clientID=" + clientID +
+                ", productID=" + productID +
+                '}';
+    }
+}
