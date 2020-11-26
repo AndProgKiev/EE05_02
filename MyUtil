@@ -1,0 +1,79 @@
+import java.sql.*;
+
+public class MyUtil {
+
+    public static void start(String userName, String password, String url) throws SQLException {
+        try(Connection connection= DriverManager.getConnection(url,userName,password)) {
+            Statement st=connection.createStatement();
+            st.execute("DROP TABLE IF EXISTS clients");
+            st.execute("CREATE TABLE clients (ClientID INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                           "Name VARCHAR(20) NOT NULL," +
+                           "Surname VARCHAR(30) NOT NULL," +
+                           "PhoneNumber INT NOT NULL)");
+
+            st.execute("DROP TABLE IF EXISTS products");
+            st.execute("CREATE TABLE products (ProductID INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                           "ProductName VARCHAR (30) NOT NULL," +
+                           "ProductDescription VARCHAR (100) NOT NULL)");
+
+            st.execute("DROP TABLE IF EXISTS orders");
+            st.execute("CREATE TABLE orders(OrderID INT NOT NULL AUTO_INCREMENT PRIMARY KEY," +
+                           "ClientID INT NOT NULL," +
+                           "ProductID INT NOT NULL)");
+        }
+    }
+
+    public static void addClientToDB(Client client,Connection connection) throws SQLException {
+        try(PreparedStatement ps=connection.prepareStatement(
+        "INSERT INTO clients (name,Surname,PhoneNumber) VALUE (?,?,?)")) {
+            ps.setString(1,client.getName());
+            ps.setString(2,client.getSurname());
+            ps.setInt(3,client.getPhoneNumber());
+            ps.executeUpdate();
+        }
+    }
+
+    public static void addProductToDB (Product product,Connection connection) throws SQLException {
+        try(PreparedStatement ps=connection.prepareStatement(
+        "INSERT INTO products(ProductName,ProductDescription) VALUE (?,?)")) {
+            ps.setString(1,product.getProductName());
+            ps.setString(2,product.getProductDescription());
+            ps.executeUpdate();
+        }
+    }
+
+    public static void addOrderToDB(Client client,Product product, Connection connection) throws SQLException {
+        int clientID=0;
+        int productID=0;
+
+        ResultSet rs=null;
+        String queryOne="Select ClientID,PhoneNumber from clients";
+        String queryTwo="Select ProductID,ProductName from products";
+        try(Statement st=connection.createStatement()) {
+            rs=st.executeQuery(queryOne);
+            while (rs.next()){
+               int phoneN=rs.getInt(2);
+                if(client.getPhoneNumber()==phoneN){
+                    clientID=rs.getInt(1);
+                }
+            }
+
+            rs=st.executeQuery(queryTwo);
+            while (rs.next()){
+                String prName=rs.getString(2);
+                if (product.getProductName().equals(prName)){
+                    productID=rs.getInt(1);
+                }
+            }
+        }
+
+        try(PreparedStatement ps=connection.prepareStatement(
+        "INSERT INTO orders(ClientID,ProductID)VALUE (?,?)")) {
+            if (clientID>0&&productID>0) {
+                ps.setInt(1, clientID);
+                ps.setInt(2, productID);
+                ps.executeUpdate();
+            }else System.out.println("Product/Client id doesnt exist");
+        }
+    }
+}
